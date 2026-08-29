@@ -348,6 +348,260 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'articleControl',
+    summary: 'Article workflow controller (`ctx.articleControl`).',
+    description: 'Article workflow controller (`ctx.articleControl`).',
+    methods: [
+      {
+        signature: 'async create(agent: Agent, request: CreateArticleRequest): Promise<ArticleWorkspaceResult>',
+        description: 'Create one root article and its branch-local working directory.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log receives the article root.' }, { name: 'request', description: 'title and optional root branch metadata.' }],
+        returns: 'materialized branch-local workspace result.',
+      },
+      {
+        signature: 'next(agent: Agent, ref: ArticleRef): Promise<ArticleNextResult>',
+        description: 'Advance under explicit human control; model-writing stages wake one visible follow-up.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'current article state and whether the Agent was started.',
+      },
+      {
+        signature: 'async approveFinal(agent: Agent, ref: ArticleRef): Promise<ArticleNextResult>',
+        description: 'Approve the reviewed branch and ask the Agent to generate the final document.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'current article state and whether the Agent was started.',
+      },
+      {
+        signature: 'async requestChanges(agent: Agent, ref: ArticleRef): Promise<ArticleWorkspaceResult>',
+        description: 'Return review/final to the branch\'s current draft after checking external files.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'materialized branch-local workspace result after returning to draft.',
+      },
+      {
+        signature: 'async rollback(agent: Agent, ref: ArticleRef, revisionId: DocumentRevisionId): Promise<ArticleWorkspaceResult>',
+        description: 'Select a historical branch-local draft without deleting any later revision.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'revisionId', description: 'branch-local draft revision to restore.' }],
+        returns: 'materialized branch-local workspace result after rollback.',
+      },
+      {
+        signature: 'async createBranch(agent: Agent, ref: ArticleRef, branchName: string, explorationIdea: string): Promise<ArticleBranchControlResult>',
+        description: 'Save an idea immediately; fork only when the source Agent is idle.',
+        parameters: [{ name: 'agent', description: 'live parent Agent whose Session log owns the source branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'branchName', description: 'branch display name and child Session title.' }, { name: 'explorationIdea', description: 'first user message for the child Session.' }],
+        returns: 'durable branch request and child Session id when creation reached a fork.',
+      },
+      {
+        signature: 'async confirmBranch(agent: Agent, requestId: ArticleBranchRequestId): Promise<ArticleBranchControlResult>',
+        description: 'Confirm a saved idea against the latest completed turn and latest article revision.',
+        parameters: [{ name: 'agent', description: 'live parent Agent whose saved request should become a child branch.' }, { name: 'requestId', description: 'saved draft branch request id.' }],
+        returns: 'durable branch request and child Session id when creation reached a fork.',
+      },
+      {
+        signature: 'async retryBranch(agent: Agent, requestId: ArticleBranchRequestId): Promise<ArticleBranchControlResult>',
+        description: 'Retry initialization without deleting a Session already created by an earlier attempt.',
+        parameters: [{ name: 'agent', description: 'live parent Agent whose failed request should be retried.' }, { name: 'requestId', description: 'failed branch request id.' }],
+        returns: 'durable branch request and child Session id when creation reached a fork.',
+      },
+      {
+        signature: 'cancelBranch(agent: Agent, requestId: ArticleBranchRequestId): ArticleBranchControlResult',
+        description: 'Cancel only the article association request; any created child Session remains intact.',
+        parameters: [{ name: 'agent', description: 'live parent Agent whose request should be cancelled.' }, { name: 'requestId', description: 'saved or failed branch request id.' }],
+        returns: 'cancelled durable branch request.',
+      },
+      {
+        signature: '@Remote(\'create\') async remoteExportCreate(agent: Agent, request: CreateArticleRequest): Promise<ArticleWorkspaceResult>',
+        description: 'Remote root creation.',
+        parameters: [{ name: 'agent', description: 'live Agent inferred from the remote request.' }, { name: 'request', description: 'title and optional root branch metadata.' }],
+        returns: 'materialized branch-local workspace result.',
+      },
+      {
+        signature: '@Remote(\'next\') async remoteExportNext(agent: Agent, ref: ArticleRef): Promise<ArticleNextResult>',
+        description: 'Remote next-stage control.',
+        parameters: [{ name: 'agent', description: 'live Agent inferred from the remote request.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'current article state and whether the Agent was started.',
+      },
+      {
+        signature: '@Remote(\'approveFinal\') async remoteExportApproveFinal(agent: Agent, ref: ArticleRef): Promise<ArticleNextResult>',
+        description: 'Remote review approval.',
+        parameters: [{ name: 'agent', description: 'live Agent inferred from the remote request.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'current article state and whether the Agent was started.',
+      },
+      {
+        signature: '@Remote(\'requestChanges\') async remoteExportRequestChanges(agent: Agent, ref: ArticleRef): Promise<ArticleWorkspaceResult>',
+        description: 'Remote review/final return.',
+        parameters: [{ name: 'agent', description: 'live Agent inferred from the remote request.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'materialized branch-local workspace result after returning to draft.',
+      },
+      {
+        signature: '@Remote(\'rollback\') async remoteExportRollback(agent: Agent, ref: ArticleRef, revisionId: DocumentRevisionId): Promise<ArticleWorkspaceResult>',
+        description: 'Remote historical rollback.',
+        parameters: [{ name: 'agent', description: 'live Agent inferred from the remote request.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'revisionId', description: 'branch-local draft revision to restore.' }],
+        returns: 'materialized branch-local workspace result after rollback.',
+      },
+      {
+        signature: '@Remote(\'createBranch\') async remoteExportCreateBranch( agent: Agent, ref: ArticleRef, branchName: string, explorationIdea: string, ): Promise<ArticleBranchControlResult>',
+        description: 'Remote branch request/fork.',
+        parameters: [{ name: 'agent', description: 'live parent Agent inferred from the remote request.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'branchName', description: 'branch display name and child Session title.' }, { name: 'explorationIdea', description: 'first user message for the child Session.' }],
+        returns: 'durable branch request and child Session id when creation reached a fork.',
+      },
+      {
+        signature: '@Remote(\'confirmBranch\') async remoteExportConfirmBranch(agent: Agent, requestId: ArticleBranchRequestId): Promise<ArticleBranchControlResult>',
+        description: 'Remote confirmation of a saved mid-turn idea.',
+        parameters: [{ name: 'agent', description: 'live parent Agent inferred from the remote request.' }, { name: 'requestId', description: 'saved draft branch request id.' }],
+        returns: 'durable branch request and child Session id when creation reached a fork.',
+      },
+      {
+        signature: '@Remote(\'retryBranch\') async remoteExportRetryBranch(agent: Agent, requestId: ArticleBranchRequestId): Promise<ArticleBranchControlResult>',
+        description: 'Remote failed initialization retry.',
+        parameters: [{ name: 'agent', description: 'live parent Agent inferred from the remote request.' }, { name: 'requestId', description: 'failed branch request id.' }],
+        returns: 'durable branch request and child Session id when creation reached a fork.',
+      },
+      {
+        signature: '@Remote(\'cancelBranch\') remoteExportCancelBranch(agent: Agent, requestId: ArticleBranchRequestId): ArticleBranchControlResult',
+        description: 'Remote article-association cancellation.',
+        parameters: [{ name: 'agent', description: 'live parent Agent inferred from the remote request.' }, { name: 'requestId', description: 'saved or failed branch request id.' }],
+        returns: 'cancelled durable branch request.',
+      },
+      {
+        signature: '@Remote(\'synchronize\') async remoteExportSynchronize(agent: Agent, ref: ArticleRef, kind: ArticleDocumentKind): Promise<ArticleWorkspaceResult>',
+        description: 'Remote working-copy synchronization routed through one control surface.',
+        parameters: [{ name: 'agent', description: 'live Agent inferred from the remote request.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'kind', description: 'branch-local Markdown file to import.' }],
+        returns: 'current article snapshot plus whether a new durable revision was saved.',
+      },
+    ],
+  },
+  {
+    key: 'articles',
+    summary: 'Event-sourced article service (`ctx.articles`).',
+    description: 'Event-sourced article service (`ctx.articles`).',
+    methods: [
+      {
+        signature: 'get(agent: Agent): ArticleSnapshot | undefined',
+        description: 'Return the current article branch for one exact live Agent.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }],
+        returns: 'cloned current branch snapshot, or undefined before article creation.',
+      },
+      {
+        signature: 'readDocument(agent: Agent, revisionId: DocumentRevisionIdType): ArticleDocumentRecord',
+        description: 'Return one immutable document only when it belongs to the active branch.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'revisionId', description: 'immutable document revision id to read.' }],
+        returns: 'cloned document record for the current branch.',
+      },
+      {
+        signature: 'readCurrentDocument(agent: Agent, kind: ArticleDocumentKind): ArticleDocumentRecord | undefined',
+        description: 'Read the current document for one kind.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'kind', description: 'material, draft, review, or final slot to inspect.' }],
+        returns: 'cloned current document record, or undefined when the slot is empty.',
+      },
+      {
+        signature: 'listRevisions(agent: Agent, kind?: ArticleDocumentKind): ArticleDocumentSummary[]',
+        description: 'List immutable revisions owned by the current branch, newest first.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'kind', description: 'optional document kind filter.' }],
+        returns: 'cloned branch-local revision summaries sorted by creation time descending.',
+      },
+      {
+        signature: 'getBranchRequest(agent: Agent, requestId: ArticleBranchRequestIdType): ArticleBranchRequest | undefined',
+        description: 'Read one durable child-branch request owned by the current branch.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'requestId', description: 'durable branch request id to read.' }],
+        returns: 'cloned branch request, or undefined when the request is absent or inherited from another branch.',
+      },
+      {
+        signature: 'create(agent: Agent, request: CreateArticleRequest): ArticleSnapshot',
+        description: 'Create the root article branch for the current Session.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log receives the root article event.' }, { name: 'request', description: 'root title and optional root branch metadata.' }],
+        returns: 'cloned root branch snapshot at revision 1.',
+      },
+      {
+        signature: 'initializeBranch(agent: Agent, request: InitializeArticleBranchRequest): ArticleSnapshot',
+        description: 'Replace the inherited active branch with a branch-local revision-1 copy.',
+        parameters: [{ name: 'agent', description: 'live forked Agent whose Session inherited the parent branch events.' }, { name: 'request', description: 'child branch id, display name, and starting idea.' }],
+        returns: 'cloned child branch snapshot at revision 1.',
+      },
+      {
+        signature: 'saveDocument(agent: Agent, ref: ArticleRef, request: SaveArticleDocumentRequest): ArticleSnapshot',
+        description: 'Append one immutable document and select it as the current kind.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'request', description: 'Markdown, slot, and source metadata to save.' }],
+        returns: 'cloned branch snapshot after selecting the new document revision.',
+      },
+      {
+        signature: 'submitReview(agent: Agent, ref: ArticleRef): ArticleSnapshot',
+        description: 'Move a draft into human review without changing document pointers.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'cloned branch snapshot in review stage.',
+      },
+      {
+        signature: 'requestChanges(agent: Agent, ref: ArticleRef): ArticleSnapshot',
+        description: 'Return review/final work to its current draft without deleting later revisions.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'cloned branch snapshot in draft stage with review/final pointers cleared.',
+      },
+      {
+        signature: 'rollback(agent: Agent, ref: ArticleRef, revisionId: DocumentRevisionIdType): ArticleSnapshot',
+        description: 'Select one historical draft as current while preserving every later revision.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'revisionId', description: 'branch-local draft revision to restore as current.' }],
+        returns: 'cloned branch snapshot in draft stage with the selected draft revision.',
+      },
+      {
+        signature: 'updateWorkspace(agent: Agent, ref: ArticleRef, workspace: ArticleWorkspaceSnapshot): ArticleSnapshot',
+        description: 'Update branch-local working-copy metadata without changing content or stage.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'workspace', description: 'branch-local Markdown working-copy metadata to persist.' }],
+        returns: 'cloned branch snapshot with updated workspace metadata.',
+      },
+      {
+        signature: 'createBranchRequest(agent: Agent, ref: ArticleRef, input: { branchName: string; explorationIdea: string; status: \'draft\' | \'creating\' }): ArticleBranchRequest',
+        description: 'Create a durable parent-side branch request.',
+        parameters: [{ name: 'agent', description: 'live parent Agent whose Session log owns the source branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'input', description: 'child display name, starting idea, and initial request status.' }],
+        returns: 'cloned branch request recorded in the parent Session.',
+      },
+      {
+        signature: 'updateBranchRequest( agent: Agent, requestId: ArticleBranchRequestIdType, update: { status: \'creating\' | \'ready\' | \'failed\' | \'cancelled\' childSessionId?: ArticleBranchRequest[\'childSessionId\'] error?: string }, ): ArticleBranchRequest',
+        description: 'Move an existing branch request through its durable lifecycle.',
+        parameters: [{ name: 'agent', description: 'live parent Agent whose Session log owns the request.' }, { name: 'requestId', description: 'durable branch request id to update.' }, { name: 'update', description: 'next lifecycle status and optional child Session or failure detail.' }],
+        returns: 'cloned updated branch request.',
+      },
+      {
+        signature: 'recordAction(agent: Agent, action: ArticleActionMeta[\'action\'], status: ArticleActionMeta[\'status\'], detail?: string): void',
+        description: 'Append a workflow audit fact.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'action', description: 'workflow action being audited.' }, { name: 'status', description: 'lifecycle state of the workflow action.' }, { name: 'detail', description: 'optional human-readable detail such as a target revision or child Session id.' }],
+      },
+      {
+        signature: '@Remote(\'get\') remoteExportGet(agent: Agent): ArticleReadResult',
+        description: 'Remote current-state read.',
+        parameters: [{ name: 'agent', description: 'live Agent inferred from the remote request.' }],
+        returns: 'wire-safe current branch state.',
+      },
+      {
+        signature: '@Remote(\'listRevisions\') remoteExportListRevisions(agent: Agent, kind?: ArticleDocumentKind): ArticleRevisionListResult',
+        description: 'Remote branch-local revision list.',
+        parameters: [{ name: 'agent', description: 'live Agent inferred from the remote request.' }, { name: 'kind', description: 'optional document kind filter.' }],
+        returns: 'wire-safe branch-local revision summaries.',
+      },
+    ],
+  },
+  {
+    key: 'articleWorkspace',
+    summary: 'Branch-local Markdown service (`ctx.articleWorkspace`).',
+    description: 'Branch-local Markdown service (`ctx.articleWorkspace`).',
+    methods: [
+      {
+        signature: 'async materialize(agent: Agent, ref: ArticleRef): Promise<ArticleWorkspaceResult>',
+        description: 'Materialize every current durable document without overwriting external edits.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }],
+        returns: 'current article snapshot plus whether files or workspace metadata changed.',
+      },
+      {
+        signature: 'async synchronize(agent: Agent, ref: ArticleRef, kind: ArticleDocumentKind): Promise<ArticleWorkspaceResult>',
+        description: 'Import one externally edited file as a new immutable human revision.',
+        parameters: [{ name: 'agent', description: 'live Agent whose Session log owns the branch.' }, { name: 'ref', description: 'compare-and-set branch revision expected by the caller.' }, { name: 'kind', description: 'branch-local Markdown file to import.' }],
+        returns: 'current article snapshot plus whether a new durable revision was saved.',
+      },
+      {
+        signature: 'async assertClean(agent: Agent): Promise<void>',
+        description: 'Reject a state-changing file export or rollback while a tracked file is dirty.',
+        parameters: [{ name: 'agent', description: 'live Agent whose branch workspace should be checked.' }],
+        returns: 'void when no tracked file has unsynchronized external edits.',
+      },
+    ],
+  },
+  {
     key: 'attachments',
     summary: 'Immutable binary attachment service.',
     description: 'Immutable binary attachment service. Implementations validate bytes before publishing a reference.',
@@ -2278,6 +2532,14 @@ export const EVENT_API: readonly EventApiEntry[] = [
     parameters: [{ name: 'req', description: 'the pending decision (agent, tool identity, reason, signal).' }],
   },
   {
+    name: 'article/changed',
+    mode: 'emit',
+    signature: '\'article/changed\'(payload: { agent: Agent; change: ArticleChanged }): void',
+    summary: 'Article mutation accepted for one live Agent after its Session event committed.',
+    description: 'Article mutation accepted for one live Agent after its Session event committed.',
+    parameters: [{ name: 'payload', description: '.change - committed current article value.' }],
+  },
+  {
     name: 'commands/change',
     mode: 'emit',
     signature: '\'commands/change\'(): void',
@@ -2666,6 +2928,94 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export class ApprovalService extends Service {\n    static Config: z<Config>;\n    constructor(ctx: Context, public config: Config);\n    setPolicy(agent: Agent, policy: ApprovalPolicy): void;\n    async request(req: ApprovalRequest): Promise<ApprovalOutcome>;\n    overrideOf(session: Session): ApprovalPolicy | undefined;\n}',
   },
   {
+    name: 'ArticleActionMeta',
+    declaration: 'export interface ArticleActionMeta {\n    readonly kind: \'article/action\';\n    readonly version: 1;\n    readonly branchId: ArticleBranchId;\n    readonly action: \'next\' | \'approve\' | \'request-changes\' | \'rollback\' | \'create-branch\';\n    readonly status: \'requested\' | \'completed\' | \'failed\';\n    readonly detail?: string;\n    readonly time: number;\n}',
+  },
+  {
+    name: 'ArticleBranchControlResult',
+    declaration: 'export interface ArticleBranchControlResult {\n    readonly request: ArticleBranchRequest;\n    readonly childSessionId?: SessionId;\n}',
+  },
+  {
+    name: 'ArticleBranchId',
+    declaration: 'export type ArticleBranchId = Branded<\'ArticleBranchId\'>;',
+  },
+  {
+    name: 'ArticleBranchRequest',
+    declaration: 'export interface ArticleBranchRequest {\n    readonly id: ArticleBranchRequestId;\n    readonly treeId: ArticleTreeId;\n    readonly branchId: ArticleBranchId;\n    readonly parentBranchId: ArticleBranchId;\n    readonly parentSessionId: SessionId;\n    readonly branchName: string;\n    readonly explorationIdea: string;\n    readonly forkedFromStage: ArticleStage;\n    readonly forkedFromArticleRevision: number;\n    readonly forkedFromDocumentRevisionId?: DocumentRevisionId;\n    readonly status: ArticleBranchRequestStatus;\n    readonly childSessionId?: SessionId;\n    readonly error?: string;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n}',
+  },
+  {
+    name: 'ArticleBranchRequestId',
+    declaration: 'export type ArticleBranchRequestId = Branded<\'ArticleBranchRequestId\'>;',
+  },
+  {
+    name: 'ArticleBranchRequestStatus',
+    declaration: 'export type ArticleBranchRequestStatus = \'draft\' | \'creating\' | \'ready\' | \'failed\' | \'cancelled\';',
+  },
+  {
+    name: 'ArticleChanged',
+    declaration: 'export interface ArticleChanged {\n    readonly operation: ArticleOperation;\n    readonly ref: ArticleRef;\n    readonly article: ArticleSnapshot;\n}',
+  },
+  {
+    name: 'ArticleDocumentKind',
+    declaration: 'export type ArticleDocumentKind = \'material\' | \'draft\' | \'review\' | \'final\';',
+  },
+  {
+    name: 'ArticleDocumentRecord',
+    declaration: 'export interface ArticleDocumentRecord {\n    readonly id: DocumentRevisionId;\n    readonly treeId: ArticleTreeId;\n    readonly branchId: ArticleBranchId;\n    readonly kind: ArticleDocumentKind;\n    readonly markdown: string;\n    readonly source: ArticleDocumentSource;\n    readonly createdAt: number;\n}',
+  },
+  {
+    name: 'ArticleDocumentSource',
+    declaration: 'export type ArticleDocumentSource = {\n    readonly kind: \'agent\';\n} | {\n    readonly kind: \'human-file\';\n} | {\n    readonly kind: \'plugin\';\n} | {\n    readonly kind: \'branch-seed\';\n    readonly branchId: ArticleBranchId;\n    readonly revisionId: DocumentRevisionId;\n};',
+  },
+  {
+    name: 'ArticleDocumentSummary',
+    declaration: 'export interface ArticleDocumentSummary {\n    readonly id: DocumentRevisionId;\n    readonly branchId: ArticleBranchId;\n    readonly kind: ArticleDocumentKind;\n    readonly source: ArticleDocumentSource;\n    readonly createdAt: number;\n}',
+  },
+  {
+    name: 'ArticleNextResult',
+    declaration: 'export interface ArticleNextResult {\n    readonly article: ArticleSnapshot;\n    readonly agentStarted: boolean;\n}',
+  },
+  {
+    name: 'ArticleOperation',
+    declaration: 'export type ArticleOperation = \'create\' | \'branch-initialize\' | \'save-document\' | \'submit-review\' | \'request-changes\' | \'rollback\' | \'workspace-update\';',
+  },
+  {
+    name: 'ArticleReadResult',
+    declaration: 'export interface ArticleReadResult {\n    readonly article: ArticleSnapshot | null;\n}',
+  },
+  {
+    name: 'ArticleRef',
+    declaration: 'export interface ArticleRef {\n    readonly branchId: ArticleBranchId;\n    readonly revision: number;\n}',
+  },
+  {
+    name: 'ArticleRevisionListResult',
+    declaration: 'export interface ArticleRevisionListResult {\n    readonly revisions: ArticleDocumentSummary[];\n}',
+  },
+  {
+    name: 'ArticleSnapshot',
+    declaration: 'export interface ArticleSnapshot extends ArticleRef {\n    readonly treeId: ArticleTreeId;\n    readonly sessionId: SessionId;\n    readonly parentBranchId?: ArticleBranchId;\n    readonly parentSessionId?: SessionId;\n    readonly branchName: string;\n    readonly explorationIdea: string;\n    readonly title: string;\n    readonly stage: ArticleStage;\n    readonly forkedFromStage?: ArticleStage;\n    readonly forkedFromArticleRevision?: number;\n    readonly forkedFromDocumentRevisionId?: DocumentRevisionId;\n    readonly currentDocuments: Partial<Record<ArticleDocumentKind, DocumentRevisionId>>;\n    readonly workspace?: ArticleWorkspaceSnapshot;\n    readonly createdAt: number;\n    readonly updatedAt: number;\n}',
+  },
+  {
+    name: 'ArticleStage',
+    declaration: 'export type ArticleStage = \'idea\' | \'draft\' | \'review\' | \'final\';',
+  },
+  {
+    name: 'ArticleTreeId',
+    declaration: 'export type ArticleTreeId = Branded<\'ArticleTreeId\'>;',
+  },
+  {
+    name: 'ArticleWorkspaceFile',
+    declaration: 'export interface ArticleWorkspaceFile {\n    readonly kind: ArticleDocumentKind;\n    readonly path: string;\n    readonly baseRevisionId?: DocumentRevisionId;\n    readonly digest: string;\n}',
+  },
+  {
+    name: 'ArticleWorkspaceResult',
+    declaration: 'export interface ArticleWorkspaceResult {\n    readonly article: ArticleSnapshot;\n    readonly changed: boolean;\n}',
+  },
+  {
+    name: 'ArticleWorkspaceSnapshot',
+    declaration: 'export interface ArticleWorkspaceSnapshot {\n    readonly directory: string;\n    readonly files: Partial<Record<ArticleDocumentKind, ArticleWorkspaceFile>>;\n    readonly updatedAt: number;\n}',
+  },
+  {
     name: 'AskUserQuestionAnswer',
     declaration: 'export interface AskUserQuestionAnswer {\n    answers: AskUserQuestionAnswerItem[];\n}',
   },
@@ -2902,6 +3252,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface CreateAgentOptions {\n    readonly sessionId: SessionId;\n    readonly meta?: {\n        readonly cwd?: string;\n        readonly parentSession?: SessionId;\n        readonly seedLength?: number;\n        readonly origin?: \'subagent\';\n        readonly delegationDepth?: number;\n        readonly agentPreset?: string;\n    };\n    readonly seed?: readonly SessionEvent[];\n    readonly agentOptions?: AgentOptions;\n    readonly signal?: AbortSignal;\n    readonly setup?: AgentSetup;\n}',
   },
   {
+    name: 'CreateArticleRequest',
+    declaration: 'export interface CreateArticleRequest {\n    readonly title: string;\n    readonly branchName?: string;\n    readonly explorationIdea?: string;\n}',
+  },
+  {
     name: 'CreateGoalRequest',
     declaration: 'export interface CreateGoalRequest {\n    readonly objective: string;\n    readonly maxGoalRounds?: number;\n}',
   },
@@ -2948,6 +3302,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'DirectoryRegistrationHandle',
     declaration: 'export interface DirectoryRegistrationHandle {\n    (): void;\n    replace(entries: readonly LlmConfigurableProvider[]): void;\n}',
+  },
+  {
+    name: 'DocumentRevisionId',
+    declaration: 'export type DocumentRevisionId = Branded<\'DocumentRevisionId\'>;',
   },
   {
     name: 'Domain',
@@ -3156,6 +3514,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'InboxTarget',
     declaration: 'export type InboxTarget = \'next-turn\' | \'next-step\';',
+  },
+  {
+    name: 'InitializeArticleBranchRequest',
+    declaration: 'export interface InitializeArticleBranchRequest {\n    readonly branchId: ArticleBranchIdType;\n    readonly branchName: string;\n    readonly explorationIdea: string;\n}',
   },
   {
     name: 'InvariantFailure',
@@ -3672,6 +4034,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'SandboxPolicyRequest',
     declaration: 'export interface SandboxPolicyRequest {\n    session?: Session;\n    mode?: SandboxMode;\n}',
+  },
+  {
+    name: 'SaveArticleDocumentRequest',
+    declaration: 'export interface SaveArticleDocumentRequest {\n    readonly kind: ArticleDocumentKind;\n    readonly markdown: string;\n    readonly source: Extract<ArticleDocumentSource, {\n        kind: \'agent\' | \'human-file\' | \'plugin\';\n    }>;\n}',
   },
   {
     name: 'SaveImageAttachment',

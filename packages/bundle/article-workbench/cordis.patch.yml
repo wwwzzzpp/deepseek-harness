@@ -1,0 +1,21 @@
+# Article workbench patch layer for the Web profile. Apply after
+# `@deepseek-ai/dsh-web-app` to add article-tree state, Markdown working
+# copies, human controls, and model-visible article read/write tools.
+
+- insert:
+    - id: article
+      name: '@deepseek-ai/dsh-article'
+
+    - id: article-workspace
+      name: '@deepseek-ai/dsh-article-workspace'
+
+    - id: article-control
+      name: '@deepseek-ai/dsh-article-control'
+
+    # Global tool row for this bundle: once the article workbench is loaded,
+    # every joined agent can read/write only its current Session's branch.
+    - id: tool-article
+      name: '@deepseek-ai/dsh-tool-article'
+
+    - id: ui-article
+      name: '@deepseek-ai/dsh-client-ui-article'

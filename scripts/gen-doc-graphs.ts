@@ -135,7 +135,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'session',
     title: 'In-memory session store',
     mode: 'core',
-    consumers: ['agent-loop', 'agent', 'session-persistence', 'session-query', 'session-query-sqlite', 'subagent-inprocess', 'invariants', 'message-feedback'],
+    consumers: ['agent-loop', 'agent', 'article-control', 'session-persistence', 'session-query', 'session-query-sqlite', 'subagent-inprocess', 'invariants', 'message-feedback'],
     note: 'Owns append-only Session instances and emits the durable session event feed.',
   },
   {
@@ -226,7 +226,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'workspace',
     title: 'Workspace entity registry',
     mode: 'core',
-    consumers: ['apiproxy'],
+    consumers: ['apiproxy', 'article-control'],
     note: 'Owns WorkspaceId-branded records over the domain facility; stable sessionIds accounts drive Host RPC and GUI projections.',
   },
   {
@@ -251,6 +251,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     title: 'Log-backed session titles',
     mode: 'seam',
     implementations: ['session-title-first-prompt-llm', 'session-title-all-prompts-llm'],
+    consumers: ['article-control'],
     note: 'Owns the deterministic fallback, latest-title fold, and sole optional asynchronous provider registration.',
   },
   {
@@ -258,7 +259,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'system-prompt',
     title: 'System prompt assembly registry',
     mode: 'core',
-    consumers: ['agent-loop', 'tools', 'tool-fs', 'tool-terminal', 'tool-web'],
+    consumers: ['agent-loop', 'tools', 'tool-article', 'tool-fs', 'tool-terminal', 'tool-web'],
     note: 'Collects prompt sections and model-facing tool schemas for each step.',
   },
   {
@@ -266,8 +267,32 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'tools',
     title: 'Tool registry and guarded execution pipeline',
     mode: 'core',
-    consumers: ['agent-loop', 'tool-ask-user', 'tool-bash', 'tool-cordis', 'tool-fs', 'tool-terminal', 'tool-skill', 'tool-subagent', 'tool-todo', 'tool-web'],
+    consumers: ['agent-loop', 'tool-ask-user', 'tool-article', 'tool-bash', 'tool-cordis', 'tool-fs', 'tool-terminal', 'tool-skill', 'tool-subagent', 'tool-todo', 'tool-web'],
     note: 'Registers capabilities, owns Code Mode transport, and routes calls through pre-policy, monotonic guards, around dispatch, post-policy, and final-result observation.',
+  },
+  {
+    key: 'articles',
+    pkg: 'article',
+    title: 'Article branch event log',
+    mode: 'core',
+    consumers: ['article-workspace', 'article-control', 'tool-article'],
+    note: 'Folds article document, branch, and action events into one branch-local current state; every mutation uses a branch/revision compare-and-set and leaves immutable Markdown revisions in the Session log.',
+  },
+  {
+    key: 'articleWorkspace',
+    pkg: 'article-workspace',
+    title: 'Branch-local Markdown working copies',
+    mode: 'core',
+    consumers: ['article-control', 'tool-article'],
+    note: 'Materializes current branch documents under .dsh/article/{tree-id}/{branch-id}/ and imports external edits as new human revisions while refusing to overwrite unsynchronized files.',
+  },
+  {
+    key: 'articleControl',
+    pkg: 'article-control',
+    title: 'Human article workflow controller',
+    mode: 'core',
+    consumers: ['ui-article'],
+    note: 'Owns explicit workflow transitions, rollback, synchronization, and recoverable child-branch creation through ordinary Session forks; model tools cannot call these controls directly.',
   },
   {
     key: 'userQuestions',
@@ -289,6 +314,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'agent-presets',
     title: 'Per-session agent composition',
     mode: 'core',
+    consumers: ['article-control'],
     note: 'Discovers preset directories over trusted and user-authored roots and mounts one preset cordis.yml under an agent scope during creation, rejecting a row that never activates or that publishes into the root service realm.',
   },
   {
@@ -303,7 +329,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'session-projection',
     title: 'Session projection units',
     mode: 'core',
-    consumers: ['tool-todo', 'session-title', 'host-apiproxy'],
+    consumers: ['article', 'tool-todo', 'session-title', 'host-apiproxy'],
     note: 'Domains register state-driven fold units; the eager drive keeps per-session watermark states and api-proxy serves baselines and pushes changed values.',
   },
   {
@@ -328,7 +354,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'agent',
     title: 'Agent service',
     mode: 'core',
-    consumers: ['agent-loop', 'acp', 'subagent-inprocess'],
+    consumers: ['agent-loop', 'article', 'article-control', 'acp', 'subagent-inprocess'],
     note: 'Owns live Agent handles, the create/resume factory seam, and process-local initiator propagation.',
   },
   {

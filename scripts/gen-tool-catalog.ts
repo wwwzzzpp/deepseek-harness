@@ -40,6 +40,9 @@ import SkillRegistry from '@deepseek-ai/dsh-skill'
 import * as SkillFileSystem from '@deepseek-ai/dsh-skill-filesystem'
 import LocalJobRegistry from '@deepseek-ai/dsh-jobs-local'
 import * as ToolAskUser from '@deepseek-ai/dsh-tool-ask-user'
+import ArticleService from '@deepseek-ai/dsh-article'
+import ArticleWorkspace from '@deepseek-ai/dsh-article-workspace'
+import * as ToolArticle from '@deepseek-ai/dsh-tool-article'
 import * as ToolBash from '@deepseek-ai/dsh-tool-bash'
 import * as ToolPwsh from '@deepseek-ai/dsh-tool-pwsh'
 import * as ToolBashPersistent from '@deepseek-ai/dsh-tool-bash-persistent'
@@ -182,6 +185,25 @@ export interface ToolPackage {
  * guard proves it is exhaustive against the on-disk glob.
  */
 const TOOL_PACKAGES: ToolPackage[] = [
+  {
+    pkg: '@deepseek-ai/dsh-tool-article',
+    dir: 'tool-article',
+    source: {
+      article_read_current: 'packages/article/tool-article/src/index.ts',
+      article_write: 'packages/article/tool-article/src/index.ts',
+    },
+    requires: ['ctx.tools', 'ctx.articles', 'ctx.articleWorkspace', 'ctx.systemPrompt', 'an owning Agent session at execution time'],
+    writes: ['tool/call', 'article/document', 'article/change', 'tool/result', 'branch-local Markdown files'],
+    async mount(ctx) {
+      await ctx.plugin(AgentRegistry)
+      await ctx.plugin(SessionProjectionRegistry)
+      await ctx.plugin(ArticleService)
+      await ctx.plugin(ArticleWorkspace)
+      await ctx.plugin(ToolArticle)
+    },
+    note:
+      'article_read_current and article_write operate only on the active article branch. Human-only controls create branches, roll back drafts, and advance workflow stages through article-control.',
+  },
   {
     pkg: '@deepseek-ai/dsh-tool-ask-user',
     dir: 'tool-ask-user',

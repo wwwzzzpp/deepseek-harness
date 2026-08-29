@@ -23,6 +23,12 @@
       "path": "../../core/session"
     },
     {
+      "path": "../../article/article"
+    },
+    {
+      "path": "../../article/article-control"
+    },
+    {
       "path": "../../credentials/credentials"
     },
     {

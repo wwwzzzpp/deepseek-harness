@@ -204,6 +204,52 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
 
 来源：[`packages/interaction/user-approval/src/index.ts:67`](../packages/interaction/user-approval/src/index.ts)
 
+### `article/*`
+
+<a id="articleaction--log-only"></a>
+
+#### `article/action` — log-only
+
+```ts persistence-catalog
+/** Workflow action audit fact. */
+'article/action': ArticleActionMeta
+```
+
+来源：[`packages/article/article/src/domain.ts:72`](../packages/article/article/src/domain.ts)
+
+<a id="articlebranch-change--log-only"></a>
+
+#### `article/branch-change` — log-only
+
+```ts persistence-catalog
+/** Complete current state of one branch-creation request. */
+'article/branch-change': ArticleBranchChangeMeta
+```
+
+来源：[`packages/article/article/src/domain.ts:70`](../packages/article/article/src/domain.ts)
+
+<a id="articlechange--log-only"></a>
+
+#### `article/change` — log-only
+
+```ts persistence-catalog
+/** Complete current article state after one accepted mutation. */
+'article/change': ArticleChangeMeta
+```
+
+来源：[`packages/article/article/src/domain.ts:68`](../packages/article/article/src/domain.ts)
+
+<a id="articledocument--log-only"></a>
+
+#### `article/document` — log-only
+
+```ts persistence-catalog
+/** One immutable Markdown revision. */
+'article/document': ArticleDocumentRecord
+```
+
+来源：[`packages/article/article/src/domain.ts:66`](../packages/article/article/src/domain.ts)
+
 ### `assistant/*`
 
 <a id="assistantchunk--log-only"></a>

@@ -782,6 +782,18 @@
       "ignoreDependencies": [
         "@deepseek-ai/.+"
       ]
+    },
+    "packages/bundle/article-workbench": {
+      "ignoreDependencies": [
+        "@deepseek-ai/.+"
+      ]
+    },
+    "packages/client/ui-article": {
+      "ignoreDependencies": [
+        "@deepseek-ai/dsh-client-test-runtime",
+        "@testing-library/react",
+        "react-dom"
+      ]
     }
   }
 }

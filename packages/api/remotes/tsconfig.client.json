@@ -18,6 +18,12 @@
       "path": "../gateway/tsconfig.client.json"
     },
     {
+      "path": "../../article/article"
+    },
+    {
+      "path": "../../article/article-control"
+    },
+    {
       "path": "../../client/connection/tsconfig.client.json"
     },
     {
